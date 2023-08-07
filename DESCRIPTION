@@ -1,0 +1,14 @@
+Package: ezpzmcmcpcpca
+Type: Package
+Title: PCPCA in R
+Version: 0.1.0
+Author: Andrew Ghazi
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    cmdstanr
+RoxygenNote: 7.2.3
