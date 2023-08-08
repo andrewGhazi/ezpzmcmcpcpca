@@ -42,7 +42,7 @@ pcpca_mcmc = function(X, Y, gamma, d = 1, verbose = TRUE,
                              package = 'ezpzmcmcpcpca')
     data_list$k = NULL
   } else {
-    model_path = system.file('stan', 'pcpca_gibbs_Nd.stan',
+    model_path = system.file('stan', 'pcpca_gibbs_Nd_ortho.stan',
                              package = 'ezpzmcmcpcpca')
   }
 
