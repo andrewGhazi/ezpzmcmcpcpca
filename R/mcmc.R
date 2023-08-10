@@ -22,8 +22,9 @@ pcpca_mcmc = function(X, Y, gamma, d = 1, verbose = TRUE,
 
     init = function() {
 
-      list(W = W_unit,
-           sigma2 = 1)
+      list(W_scales = apply(mle_est$W_mle, 2, \(x) sqrt(sum(x^2))),
+           sigma2 = 1,
+           W_raw = W_unit)
     }
   }
 
@@ -31,6 +32,8 @@ pcpca_mcmc = function(X, Y, gamma, d = 1, verbose = TRUE,
                    m = nrow(Y),
                    p = ncol(Y),
                    mle_max_i = mle_est$W_mle |> apply(2, \(.x) which.max(abs(.x))),
+                   # W_signs = sign(mle_est$W_mle),
+                   W_mle = mle_est$W_mle,
                    X = X,
                    k = d,
                    Y = Y,
@@ -49,8 +52,6 @@ pcpca_mcmc = function(X, Y, gamma, d = 1, verbose = TRUE,
   id_model2 = cmdstanr::cmdstan_model(stan_file = model_path)
 
   pcpca_fit = id_model2$sample(data = data_list,
-                               chains = 4,
-                               parallel_chains = 4,
                                init = init, ...)
   pcpca_fit
 }
