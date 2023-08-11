@@ -24,7 +24,8 @@ pcpca_mcmc = function(X, Y, gamma, d = 1, verbose = TRUE,
 
       list(W_scales = apply(mle_est$W_mle, 2, \(x) sqrt(sum(x^2))),
            sigma2 = .1,
-           W_raw = W_unit)
+           W_raw = W_unit,
+           W = W_unit)
     }
   }
 

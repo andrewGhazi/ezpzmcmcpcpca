@@ -97,7 +97,10 @@ W_draws = mcmc_estimate$draws('W', format = 'matrix')[sample.int(4000,40),]
 #  sigma2      0.24   0.23 0.07 0.07   0.15   0.38 1.00     2024     1901
 #  ...
 
-
+arrows(x0 = 0, y0 = 0,
+       x1 = mle_estimate$W_mle[1,1],
+       y1 = mle_estimate$W_mle[2,1], 
+       col = "limegreen", length = .075, lwd = 3)
 arrows(x0 = 0, y0 = 0,
        x1 = W_draws[,1],
        y1 = W_draws[,2], 

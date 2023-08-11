@@ -88,19 +88,10 @@ mcmc_estimate = pcpca_mcmc(X, Y, .85, d = 1,
                            refresh = 0)
 #> Computing MLE estimate to use as initialization point...
 #> The first 2 of 2 eigenvalues of C are positive.
-#> Init values were only set for a subset of parameters. 
-#> Missing init values for the following parameters:
-#>  - chain 1: W
-#>  - chain 2: W
-#>  - chain 3: W
-#>  - chain 4: W
 #> Running MCMC with 4 sequential chains...
 #> 
 #> Chain 1 finished in 0.0 seconds.
 #> Chain 2 finished in 0.0 seconds.
-#> Chain 3 Rejecting initial value:
-#> Chain 3   Log probability evaluates to log(0), i.e. negative infinity.
-#> Chain 3   Stan can't start sampling from this initial value.
 #> Chain 3 finished in 0.0 seconds.
 #> Chain 4 finished in 0.0 seconds.
 #> 
@@ -118,7 +109,10 @@ W_draws = mcmc_estimate$draws('W', format = 'matrix')[sample.int(4000,40),]
 #  sigma2      0.24   0.23 0.07 0.07   0.15   0.38 1.00     2024     1901
 #  ...
 
-
+arrows(x0 = 0, y0 = 0,
+       x1 = mle_estimate$W_mle[1,1],
+       y1 = mle_estimate$W_mle[2,1], 
+       col = "limegreen", length = .075, lwd = 3)
 arrows(x0 = 0, y0 = 0,
        x1 = W_draws[,1],
        y1 = W_draws[,2], 
@@ -209,31 +203,31 @@ res_mcmc = pcpca_mcmc(X, Y, .85, 2,
 #> The first 8 of 10 eigenvalues of C are positive.
 #> Running MCMC with 4 parallel chains...
 #> 
-#> Chain 3 finished in 2.2 seconds.
-#> Chain 4 finished in 2.2 seconds.
-#> Chain 2 finished in 2.4 seconds.
-#> Chain 1 finished in 2.8 seconds.
+#> Chain 3 finished in 2.1 seconds.
+#> Chain 2 finished in 2.2 seconds.
+#> Chain 4 finished in 2.1 seconds.
+#> Chain 1 finished in 2.3 seconds.
 #> 
 #> All 4 chains finished successfully.
-#> Mean chain execution time: 2.4 seconds.
-#> Total execution time: 2.9 seconds.
-#> Warning: 1 of 4000 (0.0%) transitions ended with a divergence.
+#> Mean chain execution time: 2.2 seconds.
+#> Total execution time: 2.4 seconds.
+#> Warning: 7 of 4000 (0.0%) transitions ended with a divergence.
 #> See https://mc-stan.org/misc/warnings for details.
 
 res_mcmc$summary(c("sigma2", "W_id"))
 #> # A tibble: 21 × 10
 #>    variable    mean median     sd    mad     q5    q95  rhat ess_bulk ess_tail
 #>    <chr>      <num>  <num>  <num>  <num>  <num>  <num> <num>    <num>    <num>
-#>  1 sigma2     1.05   1.05  0.0619 0.0635  0.956  1.16   1.00    4131.    2890.
-#>  2 W_id[1,1] -1.87  -1.86  0.431  0.429  -2.60  -1.18   1.00    3350.    3177.
-#>  3 W_id[2,1] -0.858 -0.852 0.141  0.142  -1.10  -0.633  1.00    4016.    3163.
-#>  4 W_id[3,1]  7.37   7.34  0.598  0.579   6.45   8.42   1.00    4417.    2414.
-#>  5 W_id[4,1]  0.558  0.558 0.124  0.124   0.360  0.767  1.00    4935.    2966.
-#>  6 W_id[5,1]  0.416  0.412 0.169  0.169   0.145  0.697  1.00    3182.    2986.
-#>  7 W_id[6,1]  8.81   8.76  0.677  0.666   7.76  10.0    1.00    4598.    2540.
-#>  8 W_id[7,1]  2.48   2.47  0.214  0.209   2.15   2.86   1.00    4563.    3298.
-#>  9 W_id[8,1] -6.76  -6.73  0.573  0.562  -7.77  -5.87   1.00    4265.    2545.
-#> 10 W_id[9,1] -2.73  -2.71  0.367  0.362  -3.36  -2.15   1.00    3532.    3107.
+#>  1 sigma2     1.05   1.05  0.0602 0.0603  0.957  1.15   1.00    3814.    2733.
+#>  2 W_id[1,1] -1.87  -1.86  0.426  0.411  -2.60  -1.20   1.00    3653.    2779.
+#>  3 W_id[2,1] -0.856 -0.854 0.143  0.136  -1.10  -0.629  1.00    4664.    3202.
+#>  4 W_id[3,1]  7.37   7.35  0.586  0.575   6.46   8.41   1.00    4129.    2761.
+#>  5 W_id[4,1]  0.561  0.557 0.125  0.124   0.361  0.767  1.00    5033.    3161.
+#>  6 W_id[5,1]  0.420  0.418 0.168  0.170   0.148  0.695  1.00    3827.    2771.
+#>  7 W_id[6,1]  8.80   8.76  0.660  0.642   7.79   9.95   1.00    4197.    2352.
+#>  8 W_id[7,1]  2.48   2.47  0.211  0.208   2.16   2.86   1.00    4170.    3049.
+#>  9 W_id[8,1] -6.75  -6.72  0.553  0.544  -7.74  -5.90   1.00    4081.    2688.
+#> 10 W_id[9,1] -2.74  -2.73  0.363  0.350  -3.35  -2.17   1.00    3760.    3170.
 #> # ℹ 11 more rows
 
 # Look at the first component
