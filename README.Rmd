@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 R implementation of PCPCA. PCPCA is the work of Didong Li, Andrew Jones, and Barbara Engelhardt. Original manuscript here: https://arxiv.org/abs/2012.07977 and original Python implementation here: https://github.com/andrewcharlesjones/pcpca
 
-The MCMC implementation here is derived from the original Stan code but uses a couple linear algebra identities that make it extremely fast.
+The MCMC implementation here is derived from the original Stan code but uses a few linear algebra identities  that make it comparatively fast (Woodbury matrix inverse + matrix determinant lemma) and interpretable (Haar distribution on contrastive axes to ensure they're orthogonal).
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -35,11 +35,11 @@ library(cmdstanr)
 check_cmdstan_toolchain()
 
 install_cmdstan(cores = 2)
+
+remotes::install_github("andrewGhazi/ezpzmcmcpcpca")
 ```
 
 If the `cmdstanr` installation doesn't work you can find more detailed instructions [at this link](https://mc-stan.org/cmdstanr/). 
-
-Once you've installed `cmdstanr`, you will need to use it to install CmdStan itself:
 
 ## Example
 
@@ -66,9 +66,10 @@ Y = MASS::mvrnorm(200,
 X = rbind(X1, X2)
 
 plot(rbind(Y, X1, X2),
-     pch = 19, col = c(rep('grey', 200), 
-                       rep('dodgerblue2', 100), 
-                       rep('firebrick1', 100)),
+     pch = 19, 
+     col = c(rep('grey', 200), 
+             rep('dodgerblue2', 100), 
+             rep('firebrick1', 100)),
      xlab = 'dim_1', ylab = 'dim_2')
 
 mle_estimate = pcpca_mle(X,Y, gamma = .85)
@@ -100,5 +101,69 @@ arrows(x0 = 0, y0 = 0,
        x1 = W_draws[,1],
        y1 = W_draws[,2], 
        col = rgb(0,0,0,.333), length = .1)
+```
+
+
+# Identifiability 
+
+It also works for higher numbers of latent dimensions. This simulation explicitly defines two contrastive axes (`W_rand`), but one could also simply create multiple groups in X with varying mean. 
+
+A note on identifiability. The sign of the contrastive axes are not identifiable. Axes pointing like this `_|` have the same posterior density as axes pointing like this `Γ`. 
+
+To help get around this, we produce a generated quantity variable `W_id` that dots each axis onto the MLE, and if it's negative multiplies by -1. This works well if there is sufficient data, and the convergence metrics of `W_id` (particularly Rhat) will be happy. Higher numbers of latent dimensions requires more data for clear inference. 
+
+Nonetheless, this doesn't always work. If you notice component(s) of `W_id` that seem to be symmetrically flipping about zero, that means there's substantial probability that the posterior mean isn't pointing in the right direction.
+
+```{r}
+library(ezpzmcmcpcpca)
+
+set.seed(123)
+p = 10
+k = 2
+
+# more variance along the second axis
+W_rand = matrix(rnorm(p*k), ncol = k) %*% diag(c(2,.75)); W_rand
+
+cor_mat = trialr::rlkjcorr(1, p, 1);
+
+Y = MASS::mvrnorm(n = 500, mu = rep(0,p),
+                  Sigma = cor_mat)
+
+contrastive_noise = MASS::mvrnorm(n = 500,
+                                  Sigma = diag(k),
+                                  mu = rep(0,k))
+
+X = MASS::mvrnorm(n = 500, Sigma = cor_mat,
+                  mu = rep(0,p)) +
+  (contrastive_noise %*% t(W_rand))
+
+
+res_mle = pcpca_mle(X, Y, .85, 2); res_mle
+res_mcmc = pcpca_mcmc(X, Y, .85, 2, 
+                      chains = 4,
+                      parallel_chains = 4, refresh = 0,
+                      show_messages = FALSE)
+
+res_mcmc$summary(c("sigma2", "W_id"))
+
+# Look at the first component
+res_mcmc$draws('W_id', format = 'matrix')[,1:10] |>
+  bayesplot::mcmc_trace() 
+
+contrastive_magnitude = sqrt(rowSums(contrastive_noise^2))
+pal_fun = colorRampPalette(c('grey', 'red'))
+
+contrast_cols = pal_fun(20)[cut((contrastive_magnitude / max(contrastive_magnitude)),
+                                breaks = 20) |> as.numeric()]
+
+rbind(Y, X) %*% matrix(res_mcmc$summary("W_id")$mean, ncol = 2) |> 
+  plot(xlab = "", ylab = "",
+       col = c(rep("grey", 500),
+               contrast_cols), 
+       pch = 19)
+
+plot(W_rand[1:(p*k)], matrix(res_mcmc$summary("W_id")$mean, ncol = 1), 
+     pch = 16, xlab = 'true axis components', ylab = 'posterior means')
+
 ```
 
