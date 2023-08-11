@@ -69,7 +69,8 @@ plot(rbind(Y, X1, X2),
      col = c(rep('grey', 200), 
              rep('dodgerblue2', 100), 
              rep('firebrick1', 100)),
-     xlab = 'dim_1', ylab = 'dim_2')
+     xlab = 'dim_1', ylab = 'dim_2',
+     main = "Contrastive axis on 2D data")
 
 mle_estimate = pcpca_mle(X,Y, gamma = .85)
 #> The first 2 of 2 eigenvalues of C are positive.
@@ -105,7 +106,7 @@ mcmc_estimate = pcpca_mcmc(X, Y, .85, d = 1,
 #> 
 #> All 4 chains finished successfully.
 #> Mean chain execution time: 0.0 seconds.
-#> Total execution time: 0.6 seconds.
+#> Total execution time: 0.5 seconds.
 
 W_draws = mcmc_estimate$draws('W', format = 'matrix')[sample.int(4000,40),]
 
@@ -145,7 +146,8 @@ dimensions requires more data for clear inference.
 Nonetheless, this doesn’t always work. If you notice component(s) of
 `W_id` that seem to be symmetrically flipping about zero, that means
 there’s substantial probability that the posterior mean isn’t pointing
-in the right direction.
+in the right direction. This diagnostic use is one of the main
+advantages of the MCMC approach.
 
 ``` r
 library(ezpzmcmcpcpca)
@@ -207,14 +209,14 @@ res_mcmc = pcpca_mcmc(X, Y, .85, 2,
 #> The first 8 of 10 eigenvalues of C are positive.
 #> Running MCMC with 4 parallel chains...
 #> 
-#> Chain 3 finished in 2.4 seconds.
-#> Chain 4 finished in 2.4 seconds.
-#> Chain 2 finished in 2.6 seconds.
-#> Chain 1 finished in 2.9 seconds.
+#> Chain 3 finished in 2.2 seconds.
+#> Chain 4 finished in 2.2 seconds.
+#> Chain 2 finished in 2.4 seconds.
+#> Chain 1 finished in 2.8 seconds.
 #> 
 #> All 4 chains finished successfully.
-#> Mean chain execution time: 2.6 seconds.
-#> Total execution time: 3.0 seconds.
+#> Mean chain execution time: 2.4 seconds.
+#> Total execution time: 2.9 seconds.
 #> Warning: 1 of 4000 (0.0%) transitions ended with a divergence.
 #> See https://mc-stan.org/misc/warnings for details.
 
@@ -249,10 +251,11 @@ pal_fun = colorRampPalette(c('grey', 'red'))
 contrast_cols = pal_fun(20)[cut((contrastive_magnitude / max(contrastive_magnitude)),
                                 breaks = 20) |> as.numeric()]
 
-rbind(Y, X) %*% matrix(res_mcmc$summary("W_id")$mean, ncol = 2) |> 
+rbind(X) %*% matrix(res_mcmc$summary("W_id")$mean, ncol = 2) |> 
   plot(xlab = "", ylab = "",
-       col = c(rep("grey", 500),
-               contrast_cols), 
+       main = "10D data projected to first two contrastive axes",
+       sub = "Points colored by magnitude of true contrastive noise",
+       col = contrast_cols, 
        pch = 19)
 ```
 
@@ -261,7 +264,9 @@ rbind(Y, X) %*% matrix(res_mcmc$summary("W_id")$mean, ncol = 2) |>
 ``` r
 
 plot(W_rand[1:(p*k)], matrix(res_mcmc$summary("W_id")$mean, ncol = 1), 
-     pch = 16, xlab = 'true axis components', ylab = 'posterior means')
+     pch = 19, 
+     xlab = 'true axis components', ylab = 'posterior means', 
+     main = "True vs estimated axis components")
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-3.png" width="100%" />
