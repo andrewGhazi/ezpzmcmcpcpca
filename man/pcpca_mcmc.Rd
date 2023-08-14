@@ -4,7 +4,7 @@
 \alias{pcpca_mcmc}
 \title{EZPZ MCMC PCPCA}
 \usage{
-pcpca_mcmc(X, Y, gamma, d = 1, verbose = TRUE, mle_est, init = NULL)
+pcpca_mcmc(X, Y, gamma, d = 1, verbose = TRUE, mle_est, init = NULL, ...)
 }
 \arguments{
 \item{X}{matrix of the FOREGROUND data}
@@ -17,17 +17,26 @@ pcpca_mcmc(X, Y, gamma, d = 1, verbose = TRUE, mle_est, init = NULL)
 
 \item{verbose}{verbosity switch}
 
-\item{mle_est}{description}
+\item{mle_est}{mle estimate from pcpca_mle to use as an initialization
+direction}
 
 \item{init}{initialization list or function}
+
+\item{...}{arguments passed to cmdstanr::sample}
+}
+\value{
+the fit result from \code{cmdstanr::sample()}
 }
 \description{
 EZPZ MCMC PCPCA
 }
 \details{
-If set, \code{init} is passed to cmdstanr::sample() as is.
+If set, \code{init} is passed to \code{cmdstanr::sample()} as is.
 
 For the sake of identifiability, the largest element of the first axis is
-constrained to be positive, and the cross product of the first two
-contrastive axes is positive for d = 2.
+constrained to be positive with an InvGamma(1,1) distribution, and the cross
+product of the first two contrastive axes is positive for d = 2.
+
+The key parameters of interest in the result is W (for d = 1) or W_id (for d
+> 1), which are the contrastive axes
 }

@@ -1,14 +1,20 @@
 #' EZPZ MCMC PCPCA
 #' @inheritParams pcpca_mle
 #' @param init initialization list or function
-#' @param mle_est description
+#' @param mle_est mle estimate from pcpca_mle to use as an initialization
+#'   direction
+#' @param ... arguments passed to cmdstanr::sample
 #' @details
 #'
-#' If set, \code{init} is passed to cmdstanr::sample() as is.
+#' If set, \code{init} is passed to \code{cmdstanr::sample()} as is.
 #'
 #' For the sake of identifiability, the largest element of the first axis is
 #' constrained to be positive with an InvGamma(1,1) distribution, and the cross
 #' product of the first two contrastive axes is positive for d = 2.
+#'
+#' The key parameters of interest in the result is W (for d = 1) or W_id (for d
+#' > 1), which are the contrastive axes
+#' @returns the fit result from \code{cmdstanr::sample()}
 #' @export
 pcpca_mcmc = function(X, Y, gamma, d = 1, verbose = TRUE,
                       mle_est,
@@ -17,7 +23,7 @@ pcpca_mcmc = function(X, Y, gamma, d = 1, verbose = TRUE,
   if (is.null(init)) {
     message("Computing MLE estimate to use as initialization point...")
 
-    mle_est = pcpca_mle(X,Y,gamma, d, verbose)
+#     mle_est = pcpca_mle(X,Y,gamma, d, verbose)
     W_unit = mle_est$W_mle / sqrt(sum(mle_est$W_mle ^2)) * sign(mle_est$W_mle[which.max(abs(mle_est$W_mle))])
 
     init = function() {
@@ -61,7 +67,7 @@ pcpca_mcmc = function(X, Y, gamma, d = 1, verbose = TRUE,
 
 # These two functions dot the draws of W onto the posterior mean of the first
 # chain (instead of W_mle like the sampler) to get W_id. It doesn't really make
-# a difference.
+# a difference, they're currently unused.
 dot_to_11 = function(draw, draw11, p, k) {
 
   # For each latent dimension in the draw, check if it points in roughly the

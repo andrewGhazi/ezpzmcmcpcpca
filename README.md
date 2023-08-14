@@ -204,9 +204,9 @@ res_mcmc = pcpca_mcmc(X, Y, .85, 2,
 #> Running MCMC with 4 parallel chains...
 #> 
 #> Chain 3 finished in 2.1 seconds.
-#> Chain 2 finished in 2.2 seconds.
 #> Chain 4 finished in 2.1 seconds.
-#> Chain 1 finished in 2.3 seconds.
+#> Chain 1 finished in 2.2 seconds.
+#> Chain 2 finished in 2.3 seconds.
 #> 
 #> All 4 chains finished successfully.
 #> Mean chain execution time: 2.2 seconds.
