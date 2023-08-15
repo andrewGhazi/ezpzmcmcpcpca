@@ -144,6 +144,7 @@ X = MASS::mvrnorm(n = 500, Sigma = cor_mat,
 
 res_mle = pcpca_mle(X, Y, .85, 2); res_mle
 res_mcmc = pcpca_mcmc(X, Y, .85, 2, 
+                      mle_est = res_mle,
                       chains = 4,
                       parallel_chains = 4, refresh = 0,
                       show_messages = FALSE)

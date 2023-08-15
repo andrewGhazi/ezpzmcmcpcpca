@@ -87,7 +87,6 @@ mcmc_estimate = pcpca_mcmc(X, Y, .85, d = 1,
                            mle_est = mle_estimate, 
                            refresh = 0)
 #> Computing MLE estimate to use as initialization point...
-#> The first 2 of 2 eigenvalues of C are positive.
 #> Running MCMC with 4 sequential chains...
 #> 
 #> Chain 1 finished in 0.0 seconds.
@@ -196,21 +195,21 @@ res_mle = pcpca_mle(X, Y, .85, 2); res_mle
 #>  [9,] -0.13221252  0.1036616262
 #> [10,] -0.11940364 -0.0051256520
 res_mcmc = pcpca_mcmc(X, Y, .85, 2, 
+                      mle_est = res_mle,
                       chains = 4,
                       parallel_chains = 4, refresh = 0,
                       show_messages = FALSE)
 #> Computing MLE estimate to use as initialization point...
-#> The first 8 of 10 eigenvalues of C are positive.
 #> Running MCMC with 4 parallel chains...
 #> 
 #> Chain 3 finished in 2.1 seconds.
-#> Chain 4 finished in 2.1 seconds.
 #> Chain 1 finished in 2.2 seconds.
-#> Chain 2 finished in 2.3 seconds.
+#> Chain 2 finished in 2.2 seconds.
+#> Chain 4 finished in 2.2 seconds.
 #> 
 #> All 4 chains finished successfully.
 #> Mean chain execution time: 2.2 seconds.
-#> Total execution time: 2.4 seconds.
+#> Total execution time: 2.3 seconds.
 #> Warning: 7 of 4000 (0.0%) transitions ended with a divergence.
 #> See https://mc-stan.org/misc/warnings for details.
 
