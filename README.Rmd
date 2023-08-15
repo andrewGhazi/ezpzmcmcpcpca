@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 R implementation of PCPCA. PCPCA is the work of Didong Li, Andrew Jones, and Barbara Engelhardt. Original manuscript here: https://arxiv.org/abs/2012.07977 and original Python implementation here: https://github.com/andrewcharlesjones/pcpca
 
-The MCMC implementation here is derived from the original Stan code but uses a few linear algebra identities  that make it comparatively fast (Woodbury matrix inverse + matrix determinant lemma) and interpretable (Haar distribution on contrastive axes to ensure they're orthogonal).
+The MCMC implementation here is derived from the original Stan code but uses a few linear algebra identities  that make it comparatively fast (Woodbury matrix inverse, matrix determinant lemma, fast multiply+trace) and interpretable (Haar distribution on contrastive axes to ensure they're orthogonal).
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -110,9 +110,9 @@ arrows(x0 = 0, y0 = 0,
 
 # Identifiability 
 
-It also works for higher numbers of latent dimensions. This simulation explicitly defines two contrastive axes (`W_rand`), but one could also simply create multiple groups in X with varying mean. 
+It also works for higher numbers of latent dimensions. The simulation below explicitly defines two contrastive axes (`W_rand`), but one could also simply create multiple groups in X with varying mean. 
 
-A note on identifiability. The sign of the contrastive axes are not identifiable. Axes pointing like this `_|` have the same posterior density as axes pointing like this `Γ`. 
+A note on identifiability. The sign of the contrastive axes are not identifiable. Axes pointing like this `┘` have the same posterior density as axes flipped to point like this `┌`. 
 
 To help get around this, we produce a generated quantity variable `W_id` that dots each axis onto the MLE, and if it's negative multiplies by -1. This works well if there is sufficient data, and the convergence metrics of `W_id` (particularly Rhat) will be happy. Higher numbers of latent dimensions requires more data for clear inference. 
 

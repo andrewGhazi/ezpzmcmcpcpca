@@ -10,8 +10,9 @@ here: <https://github.com/andrewcharlesjones/pcpca>
 
 The MCMC implementation here is derived from the original Stan code but
 uses a few linear algebra identities that make it comparatively fast
-(Woodbury matrix inverse + matrix determinant lemma) and interpretable
-(Haar distribution on contrastive axes to ensure they’re orthogonal).
+(Woodbury matrix inverse, matrix determinant lemma, fast multiply+trace)
+and interpretable (Haar distribution on contrastive axes to ensure
+they’re orthogonal).
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -122,13 +123,13 @@ arrows(x0 = 0, y0 = 0,
 
 # Identifiability
 
-It also works for higher numbers of latent dimensions. This simulation
-explicitly defines two contrastive axes (`W_rand`), but one could also
-simply create multiple groups in X with varying mean.
+It also works for higher numbers of latent dimensions. The simulation
+below explicitly defines two contrastive axes (`W_rand`), but one could
+also simply create multiple groups in X with varying mean.
 
 A note on identifiability. The sign of the contrastive axes are not
-identifiable. Axes pointing like this `_|` have the same posterior
-density as axes pointing like this `Γ`.
+identifiable. Axes pointing like this `┘` have the same posterior
+density as axes flipped to point like this `┌`.
 
 To help get around this, we produce a generated quantity variable `W_id`
 that dots each axis onto the MLE, and if it’s negative multiplies by -1.
@@ -202,31 +203,31 @@ res_mcmc = pcpca_mcmc(X, Y, .85, 2,
 #> Computing MLE estimate to use as initialization point...
 #> Running MCMC with 4 parallel chains...
 #> 
-#> Chain 3 finished in 2.1 seconds.
-#> Chain 1 finished in 2.2 seconds.
-#> Chain 2 finished in 2.2 seconds.
-#> Chain 4 finished in 2.2 seconds.
+#> Chain 1 finished in 1.9 seconds.
+#> Chain 3 finished in 1.9 seconds.
+#> Chain 2 finished in 2.0 seconds.
+#> Chain 4 finished in 2.0 seconds.
 #> 
 #> All 4 chains finished successfully.
-#> Mean chain execution time: 2.2 seconds.
-#> Total execution time: 2.3 seconds.
-#> Warning: 7 of 4000 (0.0%) transitions ended with a divergence.
+#> Mean chain execution time: 1.9 seconds.
+#> Total execution time: 2.1 seconds.
+#> Warning: 1 of 4000 (0.0%) transitions ended with a divergence.
 #> See https://mc-stan.org/misc/warnings for details.
 
 res_mcmc$summary(c("sigma2", "W_id"))
 #> # A tibble: 21 × 10
 #>    variable    mean median     sd    mad     q5    q95  rhat ess_bulk ess_tail
 #>    <chr>      <num>  <num>  <num>  <num>  <num>  <num> <num>    <num>    <num>
-#>  1 sigma2     1.05   1.05  0.0602 0.0603  0.957  1.15   1.00    3814.    2733.
-#>  2 W_id[1,1] -1.87  -1.86  0.426  0.411  -2.60  -1.20   1.00    3653.    2779.
-#>  3 W_id[2,1] -0.856 -0.854 0.143  0.136  -1.10  -0.629  1.00    4664.    3202.
-#>  4 W_id[3,1]  7.37   7.35  0.586  0.575   6.46   8.41   1.00    4129.    2761.
-#>  5 W_id[4,1]  0.561  0.557 0.125  0.124   0.361  0.767  1.00    5033.    3161.
-#>  6 W_id[5,1]  0.420  0.418 0.168  0.170   0.148  0.695  1.00    3827.    2771.
-#>  7 W_id[6,1]  8.80   8.76  0.660  0.642   7.79   9.95   1.00    4197.    2352.
-#>  8 W_id[7,1]  2.48   2.47  0.211  0.208   2.16   2.86   1.00    4170.    3049.
-#>  9 W_id[8,1] -6.75  -6.72  0.553  0.544  -7.74  -5.90   1.00    4081.    2688.
-#> 10 W_id[9,1] -2.74  -2.73  0.363  0.350  -3.35  -2.17   1.00    3760.    3170.
+#>  1 sigma2     1.05   1.05  0.0622 0.0619  0.955  1.16   1.00    3635.    2644.
+#>  2 W_id[1,1] -1.88  -1.89  0.444  0.443  -2.62  -1.17   1.00    3524.    2372.
+#>  3 W_id[2,1] -0.858 -0.853 0.145  0.141  -1.10  -0.627  1.00    4580.    2899.
+#>  4 W_id[3,1]  7.38   7.34  0.599  0.591   6.45   8.41   1.00    4523.    2865.
+#>  5 W_id[4,1]  0.560  0.559 0.126  0.128   0.356  0.770  1.00    4937.    3048.
+#>  6 W_id[5,1]  0.419  0.420 0.174  0.172   0.132  0.707  1.00    3818.    2416.
+#>  7 W_id[6,1]  8.80   8.76  0.675  0.668   7.78   9.98   1.00    4427.    2685.
+#>  8 W_id[7,1]  2.49   2.47  0.216  0.212   2.15   2.87   1.00    4510.    2922.
+#>  9 W_id[8,1] -6.75  -6.72  0.566  0.558  -7.72  -5.89   1.00    3957.    2973.
+#> 10 W_id[9,1] -2.74  -2.73  0.371  0.365  -3.37  -2.14   1.00    3432.    2824.
 #> # ℹ 11 more rows
 
 # Look at the first component
