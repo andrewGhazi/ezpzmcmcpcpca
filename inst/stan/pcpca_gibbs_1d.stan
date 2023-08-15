@@ -19,6 +19,19 @@ functions {
 
     return res;
   }
+
+  real mult_trace(int p, matrix tA, matrix C) {
+    // Don't do the full A * C to get the trace, only do the necessary multiplications.
+    // This may not be the most numerically stable implementation.
+    // Both A and C are symmetric, so it might be faster to figure out the right factors and use trace_quad_form().
+    real res = sum(columns_dot_product(tA, C));
+
+    // for (i in 1:p) {
+    //   res += sum(tA[,i] .* C[,i]);
+    // }
+
+    return res;
+  }
 }
 data {
   int<lower=0> n;          // number of foreground samples

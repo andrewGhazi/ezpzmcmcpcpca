@@ -22,6 +22,20 @@ functions {
     return res;
   }
 
+  real mult_trace(int p, matrix tA, matrix C) {
+    // Don't do the full A * C to get the trace, only do the necessary multiplications.
+    // This may not be the most numerically stable implementation.
+    // Both A and C are symmetric, so it might be faster to figure out the right factors and use trace_quad_form().
+    real res = sum(columns_dot_product(tA, C));
+
+    // for (i in 1:p) {
+    //   res += sum(tA[,i] .* C[,i]);
+    // }
+
+    return res;
+  }
+
+
   // vector vec_proj(vector v, vector u, int p) {
   //   // projection of v onto u
   //   vector[p] res = (dot_product(u, v) / dot_self(u)) * u;
@@ -130,7 +144,7 @@ model {
   // target += inv_gamma_lpdf(sqrt(W[1,1]^2 + W[2,1]^2)| 1,1);
   target += inv_gamma_lpdf(sigma2 | 1,1);
 
-  target += w * (-(n - gamma * m) * 0.5 * log_mdl(sigma2, p, k, W) - 0.5 * trace(woodbury(W, sigma2, p, k) * C));
+  target += w * (-(n - gamma * m) * 0.5 * log_mdl(sigma2, p, k, W) - 0.5 * mult_trace(p, woodbury(W, sigma2, p, k), C));
 }
 
 generated quantities {
