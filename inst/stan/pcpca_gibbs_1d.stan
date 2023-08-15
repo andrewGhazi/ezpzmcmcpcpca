@@ -39,12 +39,12 @@ parameters {
   matrix[p, 1] W;
   real<lower=0> sigma2;
 }
-transformed parameters {
-  matrix[p, p] A;
-  matrix[p, p] Wtcp = tcrossprod(W);
-
-  A = Wtcp + sigma2 * identity_matrix(p);
-}
+// transformed parameters {
+//   // matrix[p, p] A;
+//   // matrix[p, p] Wtcp = tcrossprod(W);
+//
+//   // A = Wtcp + sigma2 * identity_matrix(p);
+// }
 model {
   //prior on the first element of W being positive to make it identifiable
   // would be better to have a prior on the largest element. Maybe get that from the MLE and pass it in.
@@ -53,5 +53,5 @@ model {
   // target += inv_gamma_lpdf(sqrt(W[1,1]^2 + W[2,1]^2)| 1,1);
   // target += inv_gamma_lpdf(sigma2 | 2,2);
 
-  target += w * (-(n - gamma * m) * 0.5 * log_mdl(sigma2, p, W) - 0.5 * trace(sherman_morrison2(W, Wtcp, sigma2, p) * C));
+  target += w * (-(n - gamma * m) * 0.5 * log_mdl(sigma2, p, W) - 0.5 * trace(sherman_morrison2(W, tcrossprod(W), sigma2, p) * C));
 }
