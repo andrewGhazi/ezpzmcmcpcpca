@@ -62,7 +62,7 @@ parameters {
 transformed parameters {
   matrix[p, k] W;
   matrix[p, k] W_ortho;
-  matrix[p, p] A;
+  // matrix[p, p] A;
 
   // Gram-Schmidt orthogonalization of W_raw
   // https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process
@@ -91,9 +91,9 @@ transformed parameters {
 
   W = diag_post_multiply(W_ortho, W_scales);
 
-  matrix[p, p] Wtcp = tcrossprod(W);
+  // matrix[p, p] Wtcp = tcrossprod(W);
 
-  A = Wtcp + sigma2 * identity_matrix(p);
+  // A = Wtcp + sigma2 * identity_matrix(p);
 }
 model {
   //prior on the first element of W being positive to make it identifiable
