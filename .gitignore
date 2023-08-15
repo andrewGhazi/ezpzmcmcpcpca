@@ -4,3 +4,5 @@
 .Ruserdata
 ezpzmcmcpcpca.Rproj
 dev/
+inst/stan/pcpca_gibbs_1d
+inst/stan/pcpca_gibbs_Nd_ortho
