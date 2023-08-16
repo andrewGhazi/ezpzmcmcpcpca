@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 R implementation of PCPCA. PCPCA is the work of Didong Li, Andrew Jones, and Barbara Engelhardt. Original manuscript here: https://arxiv.org/abs/2012.07977 and original Python implementation here: https://github.com/andrewcharlesjones/pcpca
 
-The MCMC implementation here is derived from the original Stan code but uses a few linear algebra identities  that make it comparatively fast (Woodbury matrix inverse, matrix determinant lemma, fast multiply+trace) and interpretable (Haar distribution on contrastive axes to ensure they're orthogonal).
+The MCMC implementation here is derived from the original Stan code but uses a few linear algebra identities  that make it comparatively faster (Woodbury matrix inverse, matrix determinant lemma, fast multiply+trace) and more interpretable (Haar distribution on contrastive axes to ensure they're orthogonal).
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -174,4 +174,9 @@ plot(W_rand[1:(p*k)], matrix(res_mcmc$summary("W_id")$mean, ncol = 1),
      main = "True vs estimated axis components")
 
 ```
+
+# Future goals
+
+* Infer gamma probabilistically (likely requires a strong prior)
+* further speedups (lowest hanging fruit at this point is probably to avoid forming the full pxp matrix in `woodbury()` by also passing in C and only keeping track of the differences)
 

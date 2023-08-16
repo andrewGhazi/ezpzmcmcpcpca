@@ -9,9 +9,9 @@ and Barbara Engelhardt. Original manuscript here:
 here: <https://github.com/andrewcharlesjones/pcpca>
 
 The MCMC implementation here is derived from the original Stan code but
-uses a few linear algebra identities that make it comparatively fast
+uses a few linear algebra identities that make it comparatively faster
 (Woodbury matrix inverse, matrix determinant lemma, fast multiply+trace)
-and interpretable (Haar distribution on contrastive axes to ensure
+and more interpretable (Haar distribution on contrastive axes to ensure
 they’re orthogonal).
 
 <!-- badges: start -->
@@ -97,7 +97,7 @@ mcmc_estimate = pcpca_mcmc(X, Y, .85, d = 1,
 #> 
 #> All 4 chains finished successfully.
 #> Mean chain execution time: 0.0 seconds.
-#> Total execution time: 0.5 seconds.
+#> Total execution time: 0.6 seconds.
 
 W_draws = mcmc_estimate$draws('W', format = 'matrix')[sample.int(4000,40),]
 
@@ -209,7 +209,7 @@ res_mcmc = pcpca_mcmc(X, Y, .85, 2,
 #> Chain 4 finished in 2.0 seconds.
 #> 
 #> All 4 chains finished successfully.
-#> Mean chain execution time: 1.9 seconds.
+#> Mean chain execution time: 2.0 seconds.
 #> Total execution time: 2.1 seconds.
 #> Warning: 1 of 4000 (0.0%) transitions ended with a divergence.
 #> See https://mc-stan.org/misc/warnings for details.
@@ -264,3 +264,10 @@ plot(W_rand[1:(p*k)], matrix(res_mcmc$summary("W_id")$mean, ncol = 1),
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-3.png" width="100%" />
+
+# Future goals
+
+- Infer gamma probabilistically (likely requires a strong prior)
+- further speedups (lowest hanging fruit at this point is probably to
+  avoid forming the full pxp matrix in `woodbury()` by also passing in C
+  and only keeping track of the differences)
