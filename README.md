@@ -97,7 +97,7 @@ mcmc_estimate = pcpca_mcmc(X, Y, .85, d = 1,
 #> 
 #> All 4 chains finished successfully.
 #> Mean chain execution time: 0.0 seconds.
-#> Total execution time: 0.6 seconds.
+#> Total execution time: 0.5 seconds.
 
 W_draws = mcmc_estimate$draws('W', format = 'matrix')[sample.int(4000,40),]
 
@@ -132,7 +132,7 @@ identifiable. Axes pointing like this `┘` have the same posterior
 density as axes flipped to point like this `┌`.
 
 To help get around this, we produce a generated quantity variable `W_id`
-that dots each axis onto the MLE, and if it’s negative multiplies by -1.
+that dots each axis onto the MLE and if it’s negative multiplies by -1.
 This works well if there is sufficient data, and the convergence metrics
 of `W_id` (particularly Rhat) will be happy. Higher numbers of latent
 dimensions requires more data for clear inference.
@@ -203,31 +203,31 @@ res_mcmc = pcpca_mcmc(X, Y, .85, 2,
 #> Computing MLE estimate to use as initialization point...
 #> Running MCMC with 4 parallel chains...
 #> 
-#> Chain 1 finished in 1.9 seconds.
-#> Chain 3 finished in 1.9 seconds.
-#> Chain 2 finished in 2.0 seconds.
-#> Chain 4 finished in 2.0 seconds.
+#> Chain 1 finished in 1.8 seconds.
+#> Chain 2 finished in 1.8 seconds.
+#> Chain 3 finished in 1.7 seconds.
+#> Chain 4 finished in 1.8 seconds.
 #> 
 #> All 4 chains finished successfully.
-#> Mean chain execution time: 2.0 seconds.
-#> Total execution time: 2.1 seconds.
-#> Warning: 1 of 4000 (0.0%) transitions ended with a divergence.
+#> Mean chain execution time: 1.8 seconds.
+#> Total execution time: 1.9 seconds.
+#> Warning: 4 of 4000 (0.0%) transitions ended with a divergence.
 #> See https://mc-stan.org/misc/warnings for details.
 
 res_mcmc$summary(c("sigma2", "W_id"))
 #> # A tibble: 21 × 10
 #>    variable    mean median     sd    mad     q5    q95  rhat ess_bulk ess_tail
 #>    <chr>      <num>  <num>  <num>  <num>  <num>  <num> <num>    <num>    <num>
-#>  1 sigma2     1.05   1.05  0.0622 0.0619  0.955  1.16   1.00    3635.    2644.
-#>  2 W_id[1,1] -1.88  -1.89  0.444  0.443  -2.62  -1.17   1.00    3524.    2372.
-#>  3 W_id[2,1] -0.858 -0.853 0.145  0.141  -1.10  -0.627  1.00    4580.    2899.
-#>  4 W_id[3,1]  7.38   7.34  0.599  0.591   6.45   8.41   1.00    4523.    2865.
-#>  5 W_id[4,1]  0.560  0.559 0.126  0.128   0.356  0.770  1.00    4937.    3048.
-#>  6 W_id[5,1]  0.419  0.420 0.174  0.172   0.132  0.707  1.00    3818.    2416.
-#>  7 W_id[6,1]  8.80   8.76  0.675  0.668   7.78   9.98   1.00    4427.    2685.
-#>  8 W_id[7,1]  2.49   2.47  0.216  0.212   2.15   2.87   1.00    4510.    2922.
-#>  9 W_id[8,1] -6.75  -6.72  0.566  0.558  -7.72  -5.89   1.00    3957.    2973.
-#> 10 W_id[9,1] -2.74  -2.73  0.371  0.365  -3.37  -2.14   1.00    3432.    2824.
+#>  1 sigma2     1.05   1.05  0.0620 0.0617  0.952  1.16   1.00    4090.    2665.
+#>  2 W_id[1,1] -1.87  -1.87  0.430  0.432  -2.59  -1.19   1.00    3145.    3047.
+#>  3 W_id[2,1] -0.854 -0.851 0.141  0.140  -1.10  -0.631  1.00    4559.    3675.
+#>  4 W_id[3,1]  7.37   7.33  0.591  0.581   6.45   8.38   1.00    3784.    2884.
+#>  5 W_id[4,1]  0.560  0.558 0.128  0.124   0.354  0.777  1.00    4929.    2987.
+#>  6 W_id[5,1]  0.419  0.419 0.171  0.171   0.136  0.695  1.00    3155.    2786.
+#>  7 W_id[6,1]  8.79   8.76  0.665  0.656   7.78   9.96   1.00    4003.    2832.
+#>  8 W_id[7,1]  2.48   2.47  0.215  0.211   2.15   2.86   1.00    3673.    3186.
+#>  9 W_id[8,1] -6.75  -6.73  0.562  0.557  -7.74  -5.88   1.00    3737.    3023.
+#> 10 W_id[9,1] -2.73  -2.72  0.364  0.366  -3.34  -2.17   1.00    3014.    2928.
 #> # ℹ 11 more rows
 
 # Look at the first component

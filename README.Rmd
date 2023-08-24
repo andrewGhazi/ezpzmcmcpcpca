@@ -114,7 +114,7 @@ It also works for higher numbers of latent dimensions. The simulation below expl
 
 A note on identifiability. The sign of the contrastive axes are not identifiable. Axes pointing like this `┘` have the same posterior density as axes flipped to point like this `┌`. 
 
-To help get around this, we produce a generated quantity variable `W_id` that dots each axis onto the MLE, and if it's negative multiplies by -1. This works well if there is sufficient data, and the convergence metrics of `W_id` (particularly Rhat) will be happy. Higher numbers of latent dimensions requires more data for clear inference. 
+To help get around this, we produce a generated quantity variable `W_id` that dots each axis onto the MLE and if it's negative multiplies by -1. This works well if there is sufficient data, and the convergence metrics of `W_id` (particularly Rhat) will be happy. Higher numbers of latent dimensions requires more data for clear inference. 
 
 Nonetheless, this doesn't always work. If you notice component(s) of `W_id` that seem to be symmetrically flipping about zero, that means there's substantial probability that the posterior mean isn't pointing in the right direction. This diagnostic use is one of the main advantages of the MCMC approach. 
 
