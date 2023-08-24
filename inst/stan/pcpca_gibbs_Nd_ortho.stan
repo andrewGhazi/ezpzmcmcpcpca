@@ -9,7 +9,7 @@ functions {
 
     // matrix[p,p] res = A_inv - ((A_inv * W) * inverse(identity_matrix(k) + sigma2_inv * crossprod(W)) * (W' * A_inv));
     // V The inverse_spd() here is kxk, so very fast.
-    matrix[p,p] res = A_inv - quad_form(inverse_spd(identity_matrix(k) + sigma2_inv * crossprod(W)), (W' * A_inv));
+    matrix[p,p] res = A_inv - quad_form(inverse_spd(identity_matrix(k) + sigma2_inv * crossprod(W)), (sigma2_inv * W'));
 
     return res;
   }
