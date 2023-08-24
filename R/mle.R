@@ -43,6 +43,10 @@ pcpca_mle = function(X, Y, gamma, d = 1,
 
   W_mle = U_d %*% (lambda_d / (n - gamma*m) - (sigma2_mle * diag(d)))^(1/2)
 
+  if (!is.null(colnames(X))) {
+    rownames(W_mle) = colnames(X)
+  }
+
   return(list(sigma2_mle = sigma2_mle,
               W_mle = W_mle))
 
