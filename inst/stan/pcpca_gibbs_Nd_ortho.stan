@@ -57,11 +57,11 @@ transformed parameters {
   matrix[p, k] W;
   matrix[p, k] W_ortho;
 
-  # Q factor of std normal matrix = Haar distribution
-  # https://nhigham.com/2020/04/22/what-is-a-random-orthogonal-matrix/
+  // Q factor of std normal matrix = Haar distribution
+  // https://nhigham.com/2020/04/22/what-is-a-random-orthogonal-matrix/
   W_ortho = qr_thin_Q(W_raw);
-  # Theoretically this can be done 1.5x (O(4/3p^3) instead of O(2p^3)) faster with Householder rotations
-  # instead of QR decomposition.
+  // Theoretically this can be done 1.5x (O(4/3p^3) instead of O(2p^3)) faster with Householder rotations
+  // instead of QR decomposition.
 
   W = diag_post_multiply(W_ortho, W_scales);
 }
