@@ -23,7 +23,6 @@ This package depends on CmdStan & cmdstanr, which are not available via
 the usual CRAN route.
 
 ``` r
-
 install.packages("cmdstanr", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
 
 library(cmdstanr)
@@ -42,7 +41,7 @@ instructions [at this link](https://mc-stan.org/cmdstanr/).
 
 The package has two functions `pcpca_mle()` and `pcpca_mcmc()`. The
 former directly implements the MLE estimates from the paper. The second
-adapts the Gibbs posterior provided in the original python
+adapts the Gibbs posterior Stan code provided in the original python
 implementation.
 
 ``` r
@@ -97,7 +96,7 @@ mcmc_estimate = pcpca_mcmc(X, Y, .85, d = 1,
 #> 
 #> All 4 chains finished successfully.
 #> Mean chain execution time: 0.0 seconds.
-#> Total execution time: 0.5 seconds.
+#> Total execution time: 0.6 seconds.
 
 W_draws = mcmc_estimate$draws('W', format = 'matrix')[sample.int(4000,40),]
 
@@ -179,7 +178,6 @@ X = MASS::mvrnorm(n = 500, Sigma = cor_mat,
 
 
 res_mle = pcpca_mle(X, Y, .85, 2); res_mle
-#> The first 8 of 10 eigenvalues of C are positive.
 #> $sigma2_mle
 #> [1] 0.002039828
 #> 
@@ -200,34 +198,21 @@ res_mcmc = pcpca_mcmc(X, Y, .85, 2,
                       chains = 4,
                       parallel_chains = 4, refresh = 0,
                       show_messages = FALSE)
-#> Computing MLE estimate to use as initialization point...
-#> Running MCMC with 4 parallel chains...
-#> 
-#> Chain 1 finished in 1.8 seconds.
-#> Chain 2 finished in 1.8 seconds.
-#> Chain 3 finished in 1.7 seconds.
-#> Chain 4 finished in 1.8 seconds.
-#> 
-#> All 4 chains finished successfully.
-#> Mean chain execution time: 1.8 seconds.
-#> Total execution time: 1.9 seconds.
-#> Warning: 4 of 4000 (0.0%) transitions ended with a divergence.
-#> See https://mc-stan.org/misc/warnings for details.
 
 res_mcmc$summary(c("sigma2", "W_id"))
 #> # A tibble: 21 × 10
 #>    variable    mean median     sd    mad     q5    q95  rhat ess_bulk ess_tail
 #>    <chr>      <num>  <num>  <num>  <num>  <num>  <num> <num>    <num>    <num>
-#>  1 sigma2     1.05   1.05  0.0620 0.0617  0.952  1.16   1.00    4090.    2665.
-#>  2 W_id[1,1] -1.87  -1.87  0.430  0.432  -2.59  -1.19   1.00    3145.    3047.
-#>  3 W_id[2,1] -0.854 -0.851 0.141  0.140  -1.10  -0.631  1.00    4559.    3675.
-#>  4 W_id[3,1]  7.37   7.33  0.591  0.581   6.45   8.38   1.00    3784.    2884.
-#>  5 W_id[4,1]  0.560  0.558 0.128  0.124   0.354  0.777  1.00    4929.    2987.
-#>  6 W_id[5,1]  0.419  0.419 0.171  0.171   0.136  0.695  1.00    3155.    2786.
-#>  7 W_id[6,1]  8.79   8.76  0.665  0.656   7.78   9.96   1.00    4003.    2832.
-#>  8 W_id[7,1]  2.48   2.47  0.215  0.211   2.15   2.86   1.00    3673.    3186.
-#>  9 W_id[8,1] -6.75  -6.73  0.562  0.557  -7.74  -5.88   1.00    3737.    3023.
-#> 10 W_id[9,1] -2.73  -2.72  0.364  0.366  -3.34  -2.17   1.00    3014.    2928.
+#>  1 sigma2     1.05   1.05  0.0624 0.0615  0.950  1.16   1.00    3895.    2901.
+#>  2 W_id[1,1] -1.87  -1.87  0.430  0.420  -2.59  -1.16   1.00    3050.    2729.
+#>  3 W_id[2,1] -0.859 -0.854 0.139  0.138  -1.09  -0.634  1.00    4114.    3269.
+#>  4 W_id[3,1]  7.38   7.36  0.583  0.574   6.48   8.38   1.00    3821.    2973.
+#>  5 W_id[4,1]  0.557  0.554 0.125  0.123   0.360  0.773  1.00    5401.    3068.
+#>  6 W_id[5,1]  0.415  0.412 0.172  0.168   0.141  0.704  1.00    3643.    2520.
+#>  7 W_id[6,1]  8.81   8.77  0.666  0.641   7.80  10.0    1.00    4101.    2889.
+#>  8 W_id[7,1]  2.48   2.47  0.213  0.212   2.16   2.85   1.00    4171.    3364.
+#>  9 W_id[8,1] -6.76  -6.72  0.565  0.553  -7.75  -5.91   1.00    4032.    2933.
+#> 10 W_id[9,1] -2.74  -2.73  0.362  0.363  -3.34  -2.16   1.00    3398.    2909.
 #> # ℹ 11 more rows
 
 # Look at the first component
@@ -258,9 +243,11 @@ rbind(X) %*% matrix(res_mcmc$summary("W_id")$mean, ncol = 2) |>
 ``` r
 
 plot(W_rand[1:(p*k)], matrix(res_mcmc$summary("W_id")$mean, ncol = 1), 
+     col = c(rep('blue', 10), rep('red', 10)),
      pch = 19, 
      xlab = 'true axis components', ylab = 'posterior means', 
      main = "True vs estimated axis components")
+legend(2.25, -2, c('axis 1', 'axis 2'), col = c("blue", "red"), pch = 19)
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-3.png" width="100%" />

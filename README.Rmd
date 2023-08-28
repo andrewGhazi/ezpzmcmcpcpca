@@ -27,7 +27,6 @@ The MCMC implementation here is derived from the original Stan code but uses a f
 This package depends on CmdStan & cmdstanr, which are not available via the usual CRAN route. 
 
 ```{r eval = FALSE}
-
 install.packages("cmdstanr", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
 
 library(cmdstanr)
@@ -43,7 +42,7 @@ If the `cmdstanr` installation doesn't work you can find more detailed instructi
 
 ## Example
 
-The package has two functions `pcpca_mle()` and `pcpca_mcmc()`. The former directly implements the MLE estimates from the paper. The second adapts the Gibbs posterior provided in the original python implementation. 
+The package has two functions `pcpca_mle()` and `pcpca_mcmc()`. The former directly implements the MLE estimates from the paper. The second adapts the Gibbs posterior Stan code provided in the original python implementation. 
 
 ```{r example}
 library(ezpzmcmcpcpca)
@@ -118,7 +117,7 @@ To help get around this, we produce a generated quantity variable `W_id` that do
 
 Nonetheless, this doesn't always work. If you notice component(s) of `W_id` that seem to be symmetrically flipping about zero, that means there's substantial probability that the posterior mean isn't pointing in the right direction. This diagnostic use is one of the main advantages of the MCMC approach. 
 
-```{r}
+```{r message = FALSE}
 library(ezpzmcmcpcpca)
 
 set.seed(123)
@@ -169,10 +168,11 @@ rbind(X) %*% matrix(res_mcmc$summary("W_id")$mean, ncol = 2) |>
        pch = 19)
 
 plot(W_rand[1:(p*k)], matrix(res_mcmc$summary("W_id")$mean, ncol = 1), 
+     col = c(rep('blue', 10), rep('red', 10)),
      pch = 19, 
      xlab = 'true axis components', ylab = 'posterior means', 
      main = "True vs estimated axis components")
-
+legend(2.25, -2, c('axis 1', 'axis 2'), col = c("blue", "red"), pch = 19)
 ```
 
 # Future goals
