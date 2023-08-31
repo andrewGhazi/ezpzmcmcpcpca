@@ -119,6 +119,9 @@ Nonetheless, this doesn't always work. If you notice component(s) of `W_id` that
 
 ```{r message = FALSE}
 library(ezpzmcmcpcpca)
+library(biscale)
+library(tidyverse)
+library(patchwork)
 
 set.seed(123)
 p = 10
@@ -129,16 +132,18 @@ W_rand = matrix(rnorm(p*k), ncol = k) %*% diag(c(2,.75)); W_rand
 
 cor_mat = trialr::rlkjcorr(1, p, 1);
 
-Y = MASS::mvrnorm(n = 500, mu = rep(0,p),
+Y = MASS::mvrnorm(n = 1000, mu = rep(0,p),
                   Sigma = cor_mat)
 
-contrastive_noise = MASS::mvrnorm(n = 500,
+contrastive_noise = MASS::mvrnorm(n = 1000,
                                   Sigma = diag(k),
                                   mu = rep(0,k))
 
-X = MASS::mvrnorm(n = 500, Sigma = cor_mat,
+contrastive_variation = (contrastive_noise %*% t(W_rand))
+
+X = MASS::mvrnorm(n = 1000, Sigma = cor_mat,
                   mu = rep(0,p)) +
-  (contrastive_noise %*% t(W_rand))
+  contrastive_variation
 
 
 res_mle = pcpca_mle(X, Y, .85, 2); res_mle
@@ -160,12 +165,34 @@ pal_fun = colorRampPalette(c('grey', 'red'))
 contrast_cols = pal_fun(20)[cut((contrastive_magnitude / max(contrastive_magnitude)),
                                 breaks = 20) |> as.numeric()]
 
-rbind(X) %*% matrix(res_mcmc$summary("W_id")$mean, ncol = 2) |> 
-  plot(xlab = "", ylab = "",
-       main = "10D data projected to first two contrastive axes",
-       sub = "Points colored by magnitude of true contrastive noise",
-       col = contrast_cols, 
-       pch = 19)
+plot_data = (rbind(X) %*% matrix(res_mcmc$summary("W_id")$mean, ncol = 2)) |> 
+  as_tibble() |>
+  set_names(c('x', 'y')) |> 
+  bind_cols(contrastive_noise |> as_tibble()) |> 
+  mutate(across(V1:V2, abs))
+
+bivar_plot = plot_data |>
+  mutate(bc = biscale::bi_class(plot_data ,
+                                x = V1,
+                                y = V2,
+                                dim = 4, 
+                                style = 'equal')$bi_class) |> 
+  ggplot(aes(x,y)) +
+  geom_point(aes(color = bc), show.legend = FALSE) + 
+  bi_scale_color(pal = 'BlueOr', 
+                 dim = 4)  +
+  labs(x = "estimated_cPC1",
+       y = "estimated_cPC2") + 
+  theme_light()
+
+bivar_leg = bi_legend('BlueOr', dim = 4,
+                      xlab = 'True cPC1', 
+                      ylab = 'True cPC2')  + 
+  theme(plot.background = element_blank(), 
+        panel.background = element_blank(),
+        text = element_text(size = 8))
+
+bivar_plot + inset_element(bivar_leg, -.05, 0, .35, .35)
 
 plot(W_rand[1:(p*k)], matrix(res_mcmc$summary("W_id")$mean, ncol = 1), 
      col = c(rep('blue', 10), rep('red', 10)),

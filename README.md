@@ -144,6 +144,9 @@ advantages of the MCMC approach.
 
 ``` r
 library(ezpzmcmcpcpca)
+library(biscale)
+library(tidyverse)
+library(patchwork)
 
 set.seed(123)
 p = 10
@@ -165,34 +168,36 @@ W_rand = matrix(rnorm(p*k), ncol = k) %*% diag(c(2,.75)); W_rand
 
 cor_mat = trialr::rlkjcorr(1, p, 1);
 
-Y = MASS::mvrnorm(n = 500, mu = rep(0,p),
+Y = MASS::mvrnorm(n = 1000, mu = rep(0,p),
                   Sigma = cor_mat)
 
-contrastive_noise = MASS::mvrnorm(n = 500,
+contrastive_noise = MASS::mvrnorm(n = 1000,
                                   Sigma = diag(k),
                                   mu = rep(0,k))
 
-X = MASS::mvrnorm(n = 500, Sigma = cor_mat,
+contrastive_variation = (contrastive_noise %*% t(W_rand))
+
+X = MASS::mvrnorm(n = 1000, Sigma = cor_mat,
                   mu = rep(0,p)) +
-  (contrastive_noise %*% t(W_rand))
+  contrastive_variation
 
 
 res_mle = pcpca_mle(X, Y, .85, 2); res_mle
 #> $sigma2_mle
-#> [1] 0.002039828
+#> [1] 0.001184855
 #> 
 #> $W_mle
 #>              [,1]          [,2]
-#>  [1,] -0.09051975  0.1441503495
-#>  [2,] -0.04124558  0.0224530175
-#>  [3,]  0.35602831 -0.0736810563
-#>  [4,]  0.02689480 -0.0151457993
-#>  [5,]  0.02015256 -0.0459358586
-#>  [6,]  0.42501649  0.0554328880
-#>  [7,]  0.11986501  0.0002425385
-#>  [8,] -0.32642680 -0.0951041155
-#>  [9,] -0.13221252  0.1036616262
-#> [10,] -0.11940364 -0.0051256520
+#>  [1,] -0.06325072  0.0952025428
+#>  [2,] -0.02708875  0.0281103001
+#>  [3,]  0.24924615 -0.0406857222
+#>  [4,]  0.01496209 -0.0037119577
+#>  [5,]  0.01005678 -0.0359703063
+#>  [6,]  0.29977329  0.0305903834
+#>  [7,]  0.07953591 -0.0006342779
+#>  [8,] -0.23167991 -0.0650611589
+#>  [9,] -0.09403848  0.0733035177
+#> [10,] -0.07706104 -0.0005372498
 res_mcmc = pcpca_mcmc(X, Y, .85, 2, 
                       mle_est = res_mle,
                       chains = 4,
@@ -201,18 +206,18 @@ res_mcmc = pcpca_mcmc(X, Y, .85, 2,
 
 res_mcmc$summary(c("sigma2", "W_id"))
 #> # A tibble: 21 × 10
-#>    variable    mean median     sd    mad     q5    q95  rhat ess_bulk ess_tail
-#>    <chr>      <num>  <num>  <num>  <num>  <num>  <num> <num>    <num>    <num>
-#>  1 sigma2     1.05   1.05  0.0624 0.0615  0.950  1.16   1.00    3895.    2901.
-#>  2 W_id[1,1] -1.87  -1.87  0.430  0.420  -2.59  -1.16   1.00    3050.    2729.
-#>  3 W_id[2,1] -0.859 -0.854 0.139  0.138  -1.09  -0.634  1.00    4114.    3269.
-#>  4 W_id[3,1]  7.38   7.36  0.583  0.574   6.48   8.38   1.00    3821.    2973.
-#>  5 W_id[4,1]  0.557  0.554 0.125  0.123   0.360  0.773  1.00    5401.    3068.
-#>  6 W_id[5,1]  0.415  0.412 0.172  0.168   0.141  0.704  1.00    3643.    2520.
-#>  7 W_id[6,1]  8.81   8.77  0.666  0.641   7.80  10.0    1.00    4101.    2889.
-#>  8 W_id[7,1]  2.48   2.47  0.213  0.212   2.16   2.85   1.00    4171.    3364.
-#>  9 W_id[8,1] -6.76  -6.72  0.565  0.553  -7.75  -5.91   1.00    4032.    2933.
-#> 10 W_id[9,1] -2.74  -2.73  0.362  0.363  -3.34  -2.16   1.00    3398.    2909.
+#>    variable    mean median     sd    mad      q5    q95  rhat ess_bulk ess_tail
+#>    <chr>      <num>  <num>  <num>  <num>   <num>  <num> <num>    <num>    <num>
+#>  1 sigma2     1.21   1.21  0.0495 0.0494  1.13    1.29   1.00    3605.    2629.
+#>  2 W_id[1,1] -1.93  -1.92  0.290  0.284  -2.41   -1.47   1.00    3888.    3088.
+#>  3 W_id[2,1] -0.823 -0.820 0.126  0.128  -1.03   -0.625  1.00    4458.    3471.
+#>  4 W_id[3,1]  7.57   7.53  0.444  0.435   6.88    8.31   1.00    3856.    2818.
+#>  5 W_id[4,1]  0.454  0.454 0.0914 0.0925  0.305   0.606  1.00    4960.    3249.
+#>  6 W_id[5,1]  0.309  0.308 0.133  0.130   0.0928  0.528  1.00    3844.    3277.
+#>  7 W_id[6,1]  9.10   9.08  0.523  0.513   8.28    9.99   1.00    3920.    2899.
+#>  8 W_id[7,1]  2.41   2.40  0.162  0.161   2.16    2.69   1.00    3910.    3279.
+#>  9 W_id[8,1] -7.03  -7.01  0.443  0.437  -7.79   -6.34   1.00    4068.    2774.
+#> 10 W_id[9,1] -2.86  -2.85  0.268  0.263  -3.32   -2.44   1.00    3892.    3041.
 #> # ℹ 11 more rows
 
 # Look at the first component
@@ -230,12 +235,40 @@ pal_fun = colorRampPalette(c('grey', 'red'))
 contrast_cols = pal_fun(20)[cut((contrastive_magnitude / max(contrastive_magnitude)),
                                 breaks = 20) |> as.numeric()]
 
-rbind(X) %*% matrix(res_mcmc$summary("W_id")$mean, ncol = 2) |> 
-  plot(xlab = "", ylab = "",
-       main = "10D data projected to first two contrastive axes",
-       sub = "Points colored by magnitude of true contrastive noise",
-       col = contrast_cols, 
-       pch = 19)
+plot_data = (rbind(X) %*% matrix(res_mcmc$summary("W_id")$mean, ncol = 2)) |> 
+  as_tibble() |>
+  set_names(c('x', 'y')) |> 
+  bind_cols(contrastive_noise |> as_tibble()) |> 
+  mutate(across(V1:V2, abs))
+#> Warning: The `x` argument of `as_tibble.matrix()` must have unique column names if
+#> `.name_repair` is omitted as of tibble 2.0.0.
+#> ℹ Using compatibility `.name_repair`.
+#> This warning is displayed once every 8 hours.
+#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#> generated.
+
+bivar_plot = plot_data |>
+  mutate(bc = biscale::bi_class(plot_data ,
+                                x = V1,
+                                y = V2,
+                                dim = 4, 
+                                style = 'equal')$bi_class) |> 
+  ggplot(aes(x,y)) +
+  geom_point(aes(color = bc), show.legend = FALSE) + 
+  bi_scale_color(pal = 'BlueOr', 
+                 dim = 4)  +
+  labs(x = "estimated_cPC1",
+       y = "estimated_cPC2") + 
+  theme_light()
+
+bivar_leg = bi_legend('BlueOr', dim = 4,
+                      xlab = 'True cPC1', 
+                      ylab = 'True cPC2')  + 
+  theme(plot.background = element_blank(), 
+        panel.background = element_blank(),
+        text = element_text(size = 8))
+
+bivar_plot + inset_element(bivar_leg, -.05, 0, .35, .35)
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-2.png" width="100%" />
